@@ -3,229 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mural de Boatos - Anônimo</title>
+    <title>Mural de Boatos - Oficial</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+
     <style>
-        /* Estilo clássico de Imageboard (4chan Style) */
+        /* CSS CAPRICHADO - O VISUAL QUE VOCÊ GOSTA */
+        :root {
+            --primary: #ff4757;
+            --bg: #0f0f0f;
+            --card: #1e1e1e;
+            --text: #ffffff;
+            --secondary: #2ed573;
+        }
+
         body {
-            background-color: #f0e0d6; /* Bege clássico */
-            color: #800000; /* Vinho/Marrom */
-            font-family: arial,helvetica,sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        h1 { color: var(--primary); text-shadow: 2px 2px 10px rgba(255, 71, 87, 0.3); }
+
+        .container { width: 100%; max-width: 500px; }
+
+        .input-area {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
         }
 
-        header {
-            text-align: center;
-            border-bottom: 2px solid #d9bfb7;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-
-        h1 { font-size: 24px; margin: 0; }
-        .subtitle { font-size: 14px; color: #444; }
-
-        /* Mural de Postagens */
-        #mural {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 100px; /* Espaço para o formulário fixo */
-        }
-
-        /* Estilo de cada postagem (Mural) */
-        .post {
-            background: #d6daf0; /* Azul acinzentado suave */
-            border: 1px solid #b7c5d9;
-            padding: 10px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
-            max-width: 100%;
-            display: inline-block;
-            min-width: 300px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .post-header {
-            font-size: 12px;
-            color: #444;
-            margin-bottom: 8px;
-            border-bottom: 1px solid #b7c5d9;
-            padding-bottom: 4px;
-        }
-
-        .post-author { color: #117743; font-weight: bold; }
-        .post-id { color: #000; font-weight: normal; }
-        .post-content { 
-            font-size: 16px; 
-            color: #000; 
-            word-wrap: break-word; 
-            white-space: pre-wrap; 
-            line-height: 1.4;
-        }
-
-        /* Área de Postagem (Fixa no rodapé) */
-        .post-form-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #d9bfb7;
-            border-top: 2px solid #800000;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .post-form {
+        input {
             width: 100%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 60px;
-            border: 1px solid #800000;
-            padding: 8px;
-            font-family: inherit;
-            resize: none;
-        }
-
-        button {
-            background: #800000;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
             color: white;
-            border: 1px solid #000;
-            padding: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button#btn-postar {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: white;
             font-weight: bold;
+            font-size: 16px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s;
         }
 
-        button:hover { background: #a00000; }
-        button:disabled { background: #666; cursor: not-allowed; }
+        button#btn-postar:hover { background: #ff6b81; transform: scale(1.02); }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
+        /* ESTILO DOS CARDS DE BOATOS */
+        #mural { width: 100%; }
+
+        .boato {
+            background: var(--card);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease;
         }
 
-        /* Mobile Adjust */
-        @media (max-width: 600px) {
-            .post { min-width: 95%; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .boato p { margin: 0; font-size: 17px; line-height: 1.5; color: #ddd; }
+
+        /* BOTÃO DE BANIR - SÓ APARECE PRO ADMIN */
+        .btn-banir {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-top: 12px;
+            cursor: pointer;
+            display: none; /* Escondido por padrão */
+            font-weight: bold;
+        }
+
+        #status-admin {
+            background: rgba(46, 213, 115, 0.1);
+            color: var(--secondary);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: none;
+            border: 1px solid var(--secondary);
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>MURAL DE BOATOS</h1>
-        <div class="subtitle">Postagens anônimas e em tempo real.</div>
-    </header>
-
-    <div id="mural">
-        <p style="text-align:center; color:#666;">Conectando ao banco de dados...</p>
-    </div>
-</div>
-
-<div class="post-form-container">
-    <div class="post-form">
-        <textarea id="boatoInput" placeholder="Digite seu boato aqui..."></textarea>
-        <button id="btnEnviar">POSTAR BOATO</button>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    // Configuração fornecida por você
-    const firebaseConfig = {
-        apiKey: "AIzaSyDZvwPe8iPo9QOZ6Hf1-7XP9wkxvju3Mtw",
-        authDomain: "boatos-f241b.firebaseapp.com",
-        databaseURL: "https://boatos-f241b-default-rtdb.firebaseio.com",
-        projectId: "boatos-f241b",
-        storageBucket: "boatos-f241b.firebasestorage.app",
-        messagingSenderId: "810347699569",
-        appId: "1:810347699569:web:009a1002e27fa6be18aad0",
-        measurementId: "G-FKVEBCHXG9"
-    };
-
-    // Inicialização
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const boatosRef = ref(db, 'boatos');
-
-    const mural = document.getElementById('mural');
-    const input = document.getElementById('boatoInput');
-    const btn = document.getElementById('btnEnviar');
-
-    // Função para Enviar
-    btn.onclick = async () => {
-        const mensagem = input.value.trim();
-        if (!mensagem) return alert("O campo está vazio!");
-
-        btn.disabled = true;
-        btn.innerText = "POSTANDO...";
-
-        try {
-            await push(boatosRef, {
-                texto: mensagem,
-                data: serverTimestamp()
-            });
-            input.value = "";
-        } catch (error) {
-            console.error(error);
-            alert("Erro ao postar! Verifique se as Regras do Firebase estão como 'true'.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "POSTAR BOATO";
-        }
-    };
-
-    // Função para Receber Mensagens (Tempo Real)
-    let carregando = true;
-    onChildAdded(boatosRef, (snapshot) => {
-        if (carregando) {
-            mural.innerHTML = ""; // Limpa o "Conectando..."
-            carregando = false;
-        }
-
-        const dados = snapshot.val();
-        const dataFormatada = dados.data ? new Date(dados.data).toLocaleString('pt-BR') : "Agora";
+    <div class="container">
+        <h1>📣 Mural de Boatos</h1>
         
-        // Gera um ID baseado na chave única do Firebase (estilo 4chan)
-        const idCurto = snapshot.key.substring(snapshot.key.length - 8);
+        <div id="status-admin">🛡️ MODO ADMINISTRADOR ATIVO</div>
 
-        const postDiv = document.createElement('div');
-        postDiv.className = 'post';
-        postDiv.innerHTML = `
-            <div class="post-header">
-                <span class="post-author">Anônimo</span> 
-                <span class="post-id">No.${idCurto}</span> | 
-                <span>${dataFormatada}</span>
-            </div>
-            <div class="post-content">${escapeHTML(dados.texto)}</div>
-        `;
+        <div class="input-area">
+            <input type="text" id="texto" placeholder="O que você ouviu por aí?" maxlength="500">
+            <button id="btn-postar" onclick="postar()">ESPALHAR BOATO</button>
+        </div>
 
-        // Adiciona ao topo
-        mural.prepend(postDiv);
-    });
+        <div id="mural">Carregando boatos...</div>
+    </div>
 
-    // Função para segurança contra ataques de script
-    function escapeHTML(str) {
-        return str.replace(/[&<>"']/g, m => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        }[m]));
-    }
-</script>
+    <script>
+        // CONFIGURAÇÕES DO SEU FIREBASE (SUBSTITUA PELAS SUAS)
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "SEU_PROJETO.firebaseapp.com",
+            databaseURL: "https://SEU_PROJETO.firebaseio.com",
+            projectId: "SEU_PROJETO",
+            storageBucket: "SEU_PROJETO.appspot.com",
+            messagingSenderId: "ID",
+            appId: "APP_ID"
+        };
 
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        // Checar se o Admin está logado para mostrar os botões
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('status-admin').style.display = 'block';
+                // Mostra todos os botões de banir se você logar
+                setTimeout(() => {
+                    document.querySelectorAll('.btn-banir').forEach(b => b.style.display = 'block');
+                }, 1000);
+            }
+        });
+
+        function postar() {
+            const campo = document.getElementById('texto');
+            if (campo.value.trim() === "") return;
+
+            db.ref('boatos').push({
+                texto: campo.value,
+                data: Date.now()
+            }).then(() => {
+                campo.value = "";
+            });
+        }
+
+        // Carregamento dinâmico do Mural
+        db.ref('boatos').orderByChild('data').on('value', snapshot => {
+            const mural = document.getElementById('mural');
+            mural.innerHTML = "";
+            
+            let posts = [];
+            snapshot.forEach(child => {
+                posts.unshift({ id: child.key, ...child.val() }); // Novos no topo
+            });
+
+            posts.forEach(p => {
+                const isAdmin = auth.currentUser ? 'style="display:block"' : 'style="display:none"';
+                mural.innerHTML += `
+                    <div class="boato">
+                        <p>${p.texto}</p>
+                        <button class="btn-banir" ${isAdmin} onclick="banir('${p.id}')">⚠️ BANIR POST</button>
+                    </div>
+                `;
+            });
+        });
+
+        function banir(id) {
+            if (confirm("Deseja deletar este boato permanentemente?")) {
+                db.ref('boatos/' + id).remove()
+                    .catch(err => alert("Erro ao deletar: " + err.message));
+            }
+        }
+    </script>
 </body>
 </html>
