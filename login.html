@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Restrito</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #0f0f0f; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        
+        .login-box { 
+            background: #1e1e1e; 
+            padding: 40px 30px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 350px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
+            text-align: center; 
+            border-top: 5px solid #ff4757; 
+            box-sizing: border-box;
+        }
+        
+        h2 { margin-top: 0; margin-bottom: 25px; color: #ffffff; }
+        
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            background: #2a2a2a; 
+            border: 1px solid #444; 
+            border-radius: 8px; 
+            color: white; 
+            box-sizing: border-box; 
+            font-size: 15px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        input:focus { border-color: #ff4757; }
+        
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: #ff4757; 
+            border: none; 
+            border-radius: 8px; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+        
+        button:hover { background: #ff6b81; }
+        
+        #mensagem { 
+            margin-top: 20px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            min-height: 20px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <h2>🛡️ Painel Admin</h2>
+        <input type="email" id="email" placeholder="Seu E-mail" autocomplete="email">
+        <input type="password" id="senha" placeholder="Sua Senha">
+        <button onclick="fazerLogin()" id="btn-login">ENTRAR</button>
+        <div id="mensagem"></div>
+    </div>
+
+    <script>
+        // Configuração Oficial do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZvwPe8iPo9QOZ6Hf1-7XP9wkxvju3Mtw",
+            authDomain: "boatos-f241b.firebaseapp.com",
+            projectId: "boatos-f241b",
+            storageBucket: "boatos-f241b.firebasestorage.app",
+            messagingSenderId: "810347699569",
+            appId: "1:810347699569:web:009a1002e27fa6be18aad0"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        function fazerLogin() {
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value;
+            const msg = document.getElementById('mensagem');
+            const btn = document.getElementById('btn-login');
+
+            if (!email || !senha) {
+                msg.style.color = "#ff4757";
+                msg.innerText = "Preencha todos os campos!";
+                return;
+            }
+
+            // Estado de carregamento
+            btn.disabled = true;
+            btn.innerText = "Aguarde...";
+            msg.style.color = "#aaaaaa";
+            msg.innerText = "Verificando credenciais...";
+
+            auth.signInWithEmailAndPassword(email, senha)
+                .then(() => {
+                    msg.style.color = "#2ed573";
+                    msg.innerText = "Acesso liberado! Redirecionando...";
+                    setTimeout(() => {
+                        window.location.href = "index.html"; // Joga de volta pro mural
+                    }, 1000);
+                })
+                .catch((error) => {
+                    btn.disabled = false;
+                    btn.innerText = "ENTRAR";
+                    msg.style.color = "#ff4757";
+                    
+                    // Tratamento de erros amigável
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        msg.innerText = "Erro: E-mail ou senha incorretos.";
+                    } else if (error.code === 'auth/invalid-email') {
+                        msg.innerText = "Erro: Formato de e-mail inválido.";
+                    } else {
+                        msg.innerText = "Erro ao fazer login. Tente novamente.";
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
+
